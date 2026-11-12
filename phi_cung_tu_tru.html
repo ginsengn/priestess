@@ -450,29 +450,28 @@ function getLapXuan(year){
 
 /**
  * Lấy 6 mốc quan trọng cho Cung Phi Ngày / Giờ
- * Tự xử lý trường hợp Đông Chí, Xử Thử, Sương Giáng thuộc năm trước
+ *
+ * Chiến lược:
+ * - Luôn ưu tiên phiên bản của NĂM SINH.
+ * - Hàm findWindow() phía dưới sẽ tự mở rộng ±1 năm
+ *   và chọn mốc gần nhất đã qua → xử lý đúng trường hợp
+ *   Đông Chí / Xử Thử / Sương Giáng thuộc năm trước hoặc sau.
  */
 function getSixKeyTerms(birthDate){
   const y = birthDate.getFullYear();
 
-  // Ưu tiên năm hiện tại, nếu không có hoặc nằm sau ngày sinh thì lấy năm trước
-  function pick(name, preferPrevIfAfter = false){
-    let d = findTietKhi(y, name);
-    if(!d) d = findTietKhi(y - 1, name);
-    if(preferPrevIfAfter && d && d > birthDate){
-      const prev = findTietKhi(y - 1, name);
-      if(prev) d = prev;
-    }
-    return d;
+  function pick(name){
+    // Ưu tiên năm sinh, fallback năm trước nếu thiếu data
+    return findTietKhi(y, name) || findTietKhi(y - 1, name);
   }
 
   return {
-    dongchi:    pick("Đông chí", true),
+    dongchi:    pick("Đông chí"),
     vuthuy:     pick("Vũ thủy"),
     cocvu:      pick("Cốc vũ"),
     hachi:      pick("Hạ chí"),
-    xuthu:      pick("Xử thử", true),
-    suonggiang: pick("Sương giáng", true)
+    xuthu:      pick("Xử thử"),
+    suonggiang: pick("Sương giáng")
   };
 }
 
